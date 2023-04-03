@@ -37,7 +37,7 @@ app.get('/airport/:airportcod', read.airport);
 app.get('/flights', read.flights);
 
 // GET /flight/:id  -  Get flight by id
-app.get('/flight/:airportcod', read.flight);
+app.get('/flight/:flightcod', read.flight);
 
 // GET /models  -  Get all models
 app.get('/models', read.models);

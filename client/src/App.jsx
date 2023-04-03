@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import  React from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { GrEdit } from 'react-icons/gr'
 import { TiDeleteOutline } from 'react-icons/ti'
+
 
 function App() {
   const [flightNum, setFlightNum] = useState("")
@@ -17,6 +19,16 @@ function App() {
       planecod: 1 
     }
   }))
+
+  const [showFlights, setShowFlights] = useState(true)
+
+  const [planeArray, setPlaneArray] = useState([])
+
+  const fetchPlanes = async () => {
+    const response = await fetch('http://localhost:3001/planes')
+    const data = await response.json()
+    setPlaneArray(data)
+  }
   
   const fetchFlights = async () => {
     const response = await fetch('http://localhost:3001/flights')
@@ -24,8 +36,17 @@ function App() {
     setFlightArray(data)
   }
 
+  const deleteFlight = async (e) => {
+    const { flightcod } = e.currentTarget.dataset;
+    const response = await fetch(`http://localhost:3001/flight/${flightcod}`, {
+      method: 'DELETE'
+    })
+    await fetchFlights()
+  }
+
   useEffect(() => {
     fetchFlights()
+    fetchPlanes()
   }, [])
 
   useEffect(() => {
@@ -52,6 +73,8 @@ function App() {
 
   return (
     <div className="App">
+      <button onClick={()=> setShowFlights(!showFlights)}>Toggle Flights</button>
+      {showFlights ? <>
       <h1>Flights</h1>
       <label>Flight Number</label>``
       <input type="number" value={flightNum} placeholder={'FlightNo'} onChange={(e) => setFlightNum(parseInt(e.target.value || 0))}/>
@@ -68,7 +91,7 @@ function App() {
                     <div className="iconContainer">
                       <GrEdit size={'3rem'} />
                     </div>
-                    <div className="iconContainer">
+                    <div data-flightcod={flightcod} onClick={deleteFlight} className="iconContainer">
                       <TiDeleteOutline size={'3.5rem'} />
                     </div>
                   </div>
@@ -88,6 +111,41 @@ function App() {
         })
         }
       </div>
+      </>
+    : <>
+    <h1>Planes</h1>
+    <div className="planeContainer">
+        {
+          planeArray.map((plane, i) => {
+            const { planecod, name, modelcod } = plane
+            return ( 
+              <div key={name} className="planeCard">
+                <div className="planeCardTopSection">
+                  <div className="planeCardTopSectionPlaneContainer">plane: <h2>{plane.name}</h2></div>
+                  <div className="planeCardTopSectionIconContainer">
+                    <div className="iconContainer">
+                      <GrEdit size={'3rem'} />
+                    </div>
+                    <div data-name={name} className="iconContainer">
+                      <TiDeleteOutline size={'3.5rem'} />
+                    </div>
+                  </div>
+                </div>
+                <div className="planeCardBottomSection">
+                  <div className="planeCardBottomSectionLeftContainer">
+                    <p>Plane Code: <strong>{planecod}</strong></p>
+                  </div>
+                  <div className="planeCardBottomSectionRightContainer">
+                    <p>Model Code: <strong>{modelcod}</strong></p>
+                  </div>
+                </div>
+              </div>
+              )
+        })
+        }
+      </div>
+    <></>
+    </>}
     </div>
   )
 }
