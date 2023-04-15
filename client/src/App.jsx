@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
 import  React from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import { GrEdit } from 'react-icons/gr'
 import { TiDeleteOutline } from 'react-icons/ti'
@@ -23,6 +21,8 @@ function App() {
   const [showFlights, setShowFlights] = useState(true)
 
   const [planeArray, setPlaneArray] = useState([])
+  
+  const [showEditBlock, setShowEditBlock] = useState(false)
 
   const fetchPlanes = async () => {
     const response = await fetch('http://localhost:3001/planes')
@@ -75,7 +75,7 @@ function App() {
     <div className="App">
       <button onClick={()=> setShowFlights(!showFlights)}>Toggle Flights</button>
       {showFlights ? <>
-      <h1>Flights</h1>
+      <h1>Flights</h1>xc
       <label>Flight Number</label>``
       <input type="number" value={flightNum} placeholder={'FlightNo'} onChange={(e) => setFlightNum(parseInt(e.target.value || 0))}/>
 
@@ -84,29 +84,18 @@ function App() {
           flightArray.map((flight, i) => {
             const { flightcod, fromairportcod, toairportcod, company, duration } = flight
             return ( 
-              <div key={flightcod} className="flightCard">
-                <div className="flightCardTopSection">
-                  <div className="flightCardTopSectionFlightContainer">Flight: <h2>{flight.flightcod}</h2></div>
-                  <div className="flightCardTopSectionIconContainer">
-                    <div className="iconContainer">
-                      <GrEdit size={'3rem'} />
-                    </div>
-                    <div data-flightcod={flightcod} onClick={deleteFlight} className="iconContainer">
-                      <TiDeleteOutline size={'3.5rem'} />
-                    </div>
-                  </div>
-                </div>
-                <div className="flightCardBottomSection">
-                  <div className="flightCardBottomSectionLeftContainer">
-                    <p>From: <strong>{fromairportcod}</strong></p>
-                    <p>Company: <strong>{company}</strong></p>
-                  </div>
-                  <div className="flightCardBottomSectionRightContainer">
-                    <p>To: <strong>{toairportcod}</strong></p>
-                    <p>Duration: <strong>{duration}</strong></p>
-                  </div>
-                </div>
-              </div>
+              <FlightCard {...{
+                flightcod, 
+                flight, 
+                deleteFlight, 
+                fromairportcod, 
+                company, 
+                toairportcod, 
+                duration,
+                showEditBlock,
+                setShowEditBlock,
+              }}/>
+              // FlightCard(flightcod, flight, deleteFlight, fromairportcod, company, toairportcod, duration)
               )
         })
         }
@@ -151,3 +140,36 @@ function App() {
 }
 
 export default App
+function FlightCard({flightcod, flight, deleteFlight, fromairportcod, company, toairportcod, duration, showEditBlock, setShowEditBlock}) {
+  console.log(flightcod)
+  const toggleEditBlock = () => setShowEditBlock(!showEditBlock)
+  return <div key={flightcod} className="flightCard">
+    <div className="flightCardTopSection">
+      <div className="flightCardTopSectionFlightContainer">Flight: <h2>{flight.flightcod}</h2></div>
+      <div className="flightCardTopSectionIconContainer">
+        <div className="iconContainer">
+          <GrEdit size={'3rem'} onClick={toggleEditBlock}/>
+        </div>
+        <div data-flightcod={flightcod} onClick={deleteFlight} className="iconContainer">
+          <TiDeleteOutline size={'3.5rem'} />
+        </div>
+      </div>
+    </div>
+    <div className="flightCardBottomSection">
+      <div className="flightCardBottomSectionLeftContainer">
+        <p>From: &nbsp;
+          {!showEditBlock && <strong>{fromairportcod}</strong>}
+          {showEditBlock && 
+          <input type='number' value={fromairportcod} placeholder={'From'} onChange={(e) => setFromAirportCod(parseInt(e.target.value || 0))}/>
+          }
+          </p>
+        <p>Company: <strong>{company}</strong></p>
+      </div>
+      <div className="flightCardBottomSectionRightContainer">
+        <p>To: <strong>{toairportcod}</strong></p>
+        <p>Duration: <strong>{duration}</strong></p>
+      </div>
+    </div>
+  </div>
+}
+
